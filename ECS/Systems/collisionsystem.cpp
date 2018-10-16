@@ -107,7 +107,7 @@ void CollisionSystem::checkCollisions()
         for(j = 0; j < numMeshColliderComponents; j++)
         {
             // Check if mMeshColliderComponents[j] is inside mSphereComponents[i]
-            checkSphereInsideMesh(mSphereColliderComponents[i], mMeshColliderComponents[j]);
+            //checkSphereInsideMesh(mSphereColliderComponents[i], mMeshColliderComponents[j]);
         }
     }
 
@@ -211,8 +211,9 @@ void CollisionSystem::checkCapsuleInsideSphere(CapsuleColliderComponent c1, Sphe
 
 // Use barycentric coordinates to check which triangle the sphere center is inside,
 // or if the sphere is outside the mesh...
-int CollisionSystem::findTriangleIndexFromWorldPosition(int startIndex, gsl::Vec3 localPos, Vertex* vertexData, Triangle* triangleData)
+int CollisionSystem::findTriangleIndexFromWorldPosition(gsl::Vec3 localPos, Vertex* vertexData, Triangle* triangleData)
 {
+    // currentPoint = x and y position of localPos
     gsl::Vec2 p1, p2, p3, currentPoint;
     gsl::Vec3 v3_p1, v3_p2, v3_p3, area;
 
@@ -232,8 +233,6 @@ int CollisionSystem::findTriangleIndexFromWorldPosition(int startIndex, gsl::Vec
 
         normal = MeshBase::normalFromTriangle(i, triangleData, vertexData);
         triangleCenter = MeshBase::centerFromTriangle(i, triangleData, vertexData);
-
-        float dist = (localPos - triangleCenter)*normal;
 
         p1 = gsl::Vec2(v3_p1.getX(), v3_p1.getZ());
         p2 = gsl::Vec2(v3_p2.getX(), v3_p2.getZ());
@@ -280,6 +279,7 @@ int CollisionSystem::findTriangleIndexFromWorldPosition(int startIndex, gsl::Vec
                 i = t.e3; // Go left
         }
     }
+
 }
 
 void CollisionSystem::checkSphereInsideMesh(SphereColliderComponent& s1, MeshColliderComponent m2)
@@ -293,7 +293,7 @@ void CollisionSystem::checkSphereInsideMesh(SphereColliderComponent& s1, MeshCol
     modelMatrix.inverse();
     gsl::Vec3 localPos = (modelMatrix * gsl::Vec4(sphereCenter.getX(), sphereCenter.getY(), sphereCenter.getZ(), 1)).toVector3D();
 
-    int index = findTriangleIndexFromWorldPosition(0, sphereCenter, vertices, m2.triangles);
+    int index = findTriangleIndexFromWorldPosition(sphereCenter, vertices, m2.triangles);
 
     // Here we know which triangle we are in
     if(index != -1)
@@ -319,7 +319,7 @@ void CollisionSystem::checkSphereInsideMesh(SphereColliderComponent& s1, MeshCol
 
         std::cout << "Distance from center to triangle is: " << distance << std::endl;
 
-        // Ball is on other side of triangle...
+        // If ball is on other side of triangle, move it up
         if(pdistance < 0)
         {
             RigidBodyComponent* r1 = s1.getFirstRigidbodyComponent();
@@ -328,11 +328,11 @@ void CollisionSystem::checkSphereInsideMesh(SphereColliderComponent& s1, MeshCol
             r1->position = sitPoint1; // 1 = radius
             r1->velocity = gsl::Vec3();
         }
-        // Ball is on the right side of the triangle...
+        // Ball is on the right side of the triangle... (Collision on ground)
         if(std::fabs(distance) < s1.radius)
         {
             RigidBodyComponent* r1 = s1.getFirstRigidbodyComponent();
-            // Add a foce to the sphere that cancels out the current force downwards
+            // Add a force to the sphere that cancels out the current force downwards
             //r1->velocity = r1->velocity - faceNormal*(r1->velocity * faceNormal);
             gsl::Vec3 up(0, 1, 0);
             gsl::Vec3 normalForce = faceNormal*(-r1->velocity * faceNormal)*(r1->mass / CoreEngine::getDeltaTime());
@@ -353,7 +353,7 @@ void CollisionSystem::checkSphereInsideMesh(SphereColliderComponent& s1, MeshCol
     else
     {
         // If we get over here, the sphere center is not inside a triangle or we are at an edge...
-        // We if we are here, we need to check the if one of the four corners of the sphere
+        // If we are here, we need to check the if one of the four corners of the sphere
         // is inside a triangle in the mesh...
     }
 }

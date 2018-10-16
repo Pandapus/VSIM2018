@@ -35,7 +35,7 @@ public:
     // Meshes colliding
     void checkMeshInsideMesh(MeshColliderComponent m1, MeshColliderComponent m2);
     
-    int findTriangleIndexFromWorldPosition(int startIndex, gsl::Vec3 localPos, Vertex *vertexData, Triangle *triangleData);
+    int findTriangleIndexFromWorldPosition(gsl::Vec3 localPos, Vertex *vertexData, Triangle *triangleData);
 
 private:
     ECSManager* mManager{nullptr};

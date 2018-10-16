@@ -20,6 +20,7 @@ class Shader;
 class Texture;
 class PointLight;
 class DirectionalLight;
+class Ballsystem;
 
 class ECSManager
 {
@@ -33,6 +34,8 @@ class ECSManager
         void runScriptSystem(GLfloat deltaTime);
         void runPhysicsSystem(GLfloat deltaTime);
         void runCameraSystem();
+        void runBallsystem();
+        void runApplyPhysics(GLfloat deltaTime);
 
         //Testing a makeEntity function. Must use to see what is best as default parameters
         Entity* makeEntity(std::string entityName);
@@ -68,6 +71,7 @@ class ECSManager
         ScriptSystem *mScriptSystem{nullptr};
         PhysicsSystem* mPhysicsSystem{nullptr};
         CameraSystem* mCameraSystem{nullptr};
+        Ballsystem* mBallsystem{nullptr};
 
         //Other resources:
         Shader *mShaders[4]{nullptr};

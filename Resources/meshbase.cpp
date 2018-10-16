@@ -181,9 +181,13 @@ void MeshBase::averageNormals()
     std::vector<GLint> triIndices;
     // For each vertex we need to check
     // which triangles are connected to it
+    int currentTriangle = -1;
+    int triSubIndex = -1;
 
     // Find the first triangle that has the index...
     size_t ti = 0;
+
+    int vi = 0;
 
     Triangle thisTri, downTri, leftTri, downLeftTri, leftleftTri, downLeftLeftTri;
 
@@ -229,7 +233,7 @@ void MeshBase::averageNormals()
             sum = sum + normalFromTriangle(triIndices[i], mTriangles, mVertices);
         }
 
-        sum = sum * (1.f / numIndices);
+        //sum = sum / numIndices;
 
         sum.normalize();
 

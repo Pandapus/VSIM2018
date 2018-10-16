@@ -11,6 +11,7 @@
 #include "mousepicker.h"
 #include "linedebug.h"
 #include "camerasystem.h"
+#include "physicball.h"
 
 #include <QDebug>
 #include <QStatusBar>
@@ -37,8 +38,7 @@ void CoreEngine::makeInitialEntities()
 {
     mLineDebugClass->createObject();
     mECSManager->makeEntity("Axis", "axis", gsl::COLOR);
-    //mECSManager->makeEntity("Cube", "cube");
-    Entity* temp = mECSManager->makeEntity("Sphere", "sphere", gsl::COLOR);
+    Entity* temp = mECSManager->makeEntity("PhysicBall", "sphere", gsl::COLOR);
 
     InputComponent i;
     i.ownerEntityID = temp->mEntityID;
@@ -48,18 +48,16 @@ void CoreEngine::makeInitialEntities()
     sphere.ownerEntityID = temp->mEntityID;
     mECSManager->mSphereColliderComponents.push_back(sphere);
 
-    // Add Camera Component
+    // Add Camera Component to the object in temp
     CameraComponent c;
     c.ownerEntityID = temp->mEntityID;
     c.followEntity = true;
-    c.orbitCamera = true;
-
+    c.orbitCamera = true;           // Basically puts firstperson view
     c.mDistance = 20;
     c.mParentTransformID = Entity::getFirstTransformComponent(c.ownerEntityID)->mComponentID;
     mECSManager->mCameraComponents.push_back(c);
     CameraSystem::getInstance()->setCurrentCamera(mECSManager->mCameraComponents.size()-1);
 
-    //temp->setInputComponent(&mECSManager->mInputComponents.back());
 
     mECSManager->mScriptComponents.push_back(new ControlledBallScriptComponent());
     mECSManager->mScriptComponents.back()->ownerEntityID = temp->mEntityID;
@@ -72,18 +70,14 @@ void CoreEngine::makeInitialEntities()
     rigidbody.ownerEntityID = temp->mEntityID;
     mECSManager->mRigidBodyComponents.push_back(rigidbody);
 
-//    temp = mECSManager->makeEntity("Monkey", "suzanne.obj");
-//    temp->getTransform().setPosition(4.f, 3.f, 2.f);
-//    temp->getTransform().setScale(0.7f, 0.7f, 0.7f);
-//    temp->getTransform().setRotation(20.f, 20.f, 30.f);
-
-    temp = mECSManager->makeEntity("Terrain", "terraindata.las", gsl::LIGHTCOLOR);
+    temp = mECSManager->makeEntity("Terrain", "koordinater.las", gsl::LIGHTCOLOR);
     MeshColliderComponent mcc;
     mcc.ownerEntityID = temp->mEntityID;
-    mcc.mData = mECSManager->mMeshFactory->getMesh("terraindata.las");
+    mcc.mData = mECSManager->mMeshFactory->getMesh("koordinater.las");
     mcc.triangles = mcc.mData->mTriangles;
     mcc.numTriangles = mcc.mData->mNumberOfTriangles;
     mECSManager->mMeshColliderComponents.push_back(mcc);
+
 }
 
 
@@ -105,6 +99,8 @@ void CoreEngine::timerEvent(QTimerEvent *)
     mECSManager->runCollisionSystem();
     mECSManager->runScriptSystem(mDeltaTime);
     mECSManager->runPhysicsSystem(mDeltaTime);
+    mECSManager->runBallsystem();
+    mECSManager->runApplyPhysics(mDeltaTime);
     /*for (auto entity : mEntities)
     {
         InputComponent* tmp = entity->mInputComponent;

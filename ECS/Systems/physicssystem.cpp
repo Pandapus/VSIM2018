@@ -17,11 +17,12 @@ void PhysicsSystem::UpdateRigidBodies(float deltaTime)
     // Update gravity on each rigidbody
     std::vector<RigidBodyComponent>& rigidbodies = mECSManager->mRigidBodyComponents;
     size_t size = rigidbodies.size();
+    int a = 1;
     for(size_t i = 0; i < size; i++)
     {
         TransformComponent* t = rigidbodies[i].getFirstTransformComponent();
 
-        if(rigidbodies[i].isKinematic && !rigidbodies[i].sleepOneFrame)
+        if(rigidbodies[i].isKinematic && !rigidbodies[i].sleepOneFrame && a != 1)
         {
             // Add gravity to the component...
             if(rigidbodies[i].useGravity)

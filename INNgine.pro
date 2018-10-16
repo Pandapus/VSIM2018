@@ -87,7 +87,9 @@ SOURCES += main.cpp \
     ECS/Components/componentbase.cpp \
     ECS/Systems/physicssystem.cpp \
     linedebug.cpp \
-    directionallight.cpp
+    directionallight.cpp \
+    physicball.cpp \
+    ECS/Systems/ballsystem.cpp
 
 HEADERS += \
     renderwindow.h \
@@ -142,7 +144,9 @@ HEADERS += \
     ECS/Systems/scriptsystem.h \
     ECS/Systems/physicssystem.h \
     linedebug.h \
-    directionallight.h
+    directionallight.h \
+    physicball.h \
+    ECS/Systems/ballsystem.h
 
 FORMS += \
     mainwindow.ui

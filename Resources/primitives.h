@@ -3,6 +3,7 @@
 
 #include "vertex.h"
 #include "octahedron.h"
+#include "physicBall.h"
 #include "meshbase.h"
 
 MeshBase* makeCube()
@@ -102,6 +103,16 @@ MeshBase* makeSphere(GLint recursions = 2)
     return temp;
 }
 
+MeshBase* makePhysBall(GLint recursions = 2)
+{
+    MeshBase *temp = new Octahedron(recursions);
+    temp->mMeshName = "physicSphere";
+
+    temp->mBoundingBoxLeftDownBack = gsl::Vec3(-1.f, -1.f, -1.f);
+    temp->mBoundingBoxRightUpFront = gsl::Vec3(1.f, 1.f, 1.f);
+
+    return temp;
+}
 
 MeshBase* makeAxis()
 {

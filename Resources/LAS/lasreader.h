@@ -17,11 +17,6 @@ struct Point
     long X;
     long Y;
     long Z;
-
-    bool operator != (const Point& rhs)
-    {
-        return rhs.X != X && rhs.Y != Y && rhs.Z != Z;
-    }
 };
 
 typedef vector<double> Array;
@@ -45,9 +40,6 @@ class LASReader
         HeaderStock mHeader;
     private:
         template<typename T>
-        T clamp(T val, T low, T high);
-
-        template<typename T>
         std::istream &binaryRead(std::istream &stream, T &value);
 
         template<typename T>
@@ -62,17 +54,6 @@ class LASReader
         char ulongbuffer[4];
         char ulonglongbuffer[8];
 };
-
-template<typename T>
-T LASReader::clamp(T val, T low, T high)
-{
-    if(val > high)
-        val = high;
-    if(val < low)
-        val = low;
-
-    return val;
-}
 
 template<typename T>
 std::istream &LASReader::binaryRead(std::istream &stream, T &value)

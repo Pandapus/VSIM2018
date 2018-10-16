@@ -1,7 +1,6 @@
 #include "lasreader.h"
 #include "constants.h"
 #include "gltypes.h"
-#include <algorithm>
 #include <limits>
 #include <cassert>
 
@@ -151,6 +150,7 @@ double** LASReader::makeHeightmapFromPointData(unsigned int& height, unsigned in
     long maxZ = 0;
     long minZ = numeric_limits<long>::max();
 
+    // Find and update the largest x, y and z values and set the largest one as maxX, maxY and maxZ
     for(unsigned long long i = 0; i < mNumPoints; i++)
     {
         if(mPointData[i].X > maxX)
@@ -167,6 +167,50 @@ double** LASReader::makeHeightmapFromPointData(unsigned int& height, unsigned in
             minZ = mPointData[i].Z;
     }
 
+    // This is where we store the sum of delta(x, y, z)
+    // And where we store the number of delta(x, y, z) values
+    long long int sumdx = 0;
+    long long int numdx = 0;
+    long long int sumdy = 0;
+    long long int numdy = 0;
+    long long int sumdz = 0;
+    long long int numdz = 0;
+    long d;
+    Point* lastPoint = &mPointData[0];
+
+    // abs = Absolute value
+    // d = the distance between current point and the last point
+    for(unsigned long long i = 1; i < mNumPoints; i++)
+    {
+        d = abs(mPointData[i].X - lastPoint->X);
+        if(d != 0)
+        {
+            sumdx += d;
+            numdx++;
+        }
+        d = abs(mPointData[i].Y - lastPoint->Y);
+        if(d != 0)
+        {
+            sumdy += d;
+            numdy++;
+        }
+
+        d = abs(mPointData[i].Z - lastPoint->Z);
+        if(d != 0)
+        {
+            sumdz += d;
+            numdz++;
+        }
+
+        lastPoint = &mPointData[i];
+    }
+
+    // These store the average of the distance between each point
+    // so that we can determine the resolution of our hightmap
+    long dx = static_cast<long>(sumdx / numdx);
+    long dy = static_cast<long>(sumdy / numdy);
+    long dz = static_cast<long>(sumdz / numdz);
+
     // This is the value range of the points
     double deltaX = maxX - minX;
     double deltaY = maxY - minY;
@@ -177,25 +221,25 @@ double** LASReader::makeHeightmapFromPointData(unsigned int& height, unsigned in
     // so we choose the smallest of them as dimensionsX
     int dimensionsX = 0;
     int dimensionsY = 0;
-    int dimensionsZ = 0;
-
-    if(deltaX < deltaY)
+    if(dx < dy)
     {
-        dimensionsX = clamp<int>(static_cast<int>(deltaX), 1, 2048);
+        dimensionsX = static_cast<int>(deltaX / (2*dx));
         dimensionsY = static_cast<int>((deltaY / deltaX) * dimensionsX);
-        dimensionsZ = deltaZ * (dimensionsX / deltaX) / 2;
     }
-    else if(deltaY <= deltaX)
+    else if(dy <= dx)
     {
-        dimensionsY = clamp<int>(static_cast<int>(deltaY), 1, 2048);
+        dimensionsY = static_cast<int>(deltaY / (2*dy));
         dimensionsX = static_cast<int>((deltaX / deltaY) * dimensionsY);
-        dimensionsZ = deltaZ * (dimensionsY / deltaY) / 2;
     }
+
+    int dimensionsZ = static_cast<int>(deltaZ / dz);
 
     double min = numeric_limits<double>::min();
 
+
     double** heightmap = new double*[dimensionsY];
 
+    // Sets the resolution to the height map
     for(int i = 0; i < dimensionsY; i++)
     {
         heightmap[i] = new double[dimensionsX]{min};
@@ -289,8 +333,10 @@ double** LASReader::makeHeightmapFromPointData(unsigned int& height, unsigned in
     }
 
     // Apply a gaussian filter on the heightmap to smooth it
-    // ( get's wrid of those pesky sharp bumps )
+    // ( get's rid of those pesky sharp bumps )
 
+    // The 5's are how many points being affected,
+    // the float value is how much each point is affected
     Matrix filter = getGaussian(5, 5, 60.0);
 
     heightmap = applyFilter(heightmap, filter, dimensionsX, dimensionsY);
