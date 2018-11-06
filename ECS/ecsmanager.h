@@ -21,6 +21,7 @@ class Texture;
 class PointLight;
 class DirectionalLight;
 class Ballsystem;
+class AiSystem;
 
 class ECSManager
 {
@@ -35,6 +36,7 @@ class ECSManager
         void runPhysicsSystem(GLfloat deltaTime);
         void runCameraSystem();
         void runBallsystem();
+        void runAiSystem(GLfloat deltaTime);
         void runApplyPhysics(GLfloat deltaTime);
 
         //Testing a makeEntity function. Must use to see what is best as default parameters
@@ -59,7 +61,9 @@ class ECSManager
         std::vector<CyllinderColliderComponent> mCyllinderColliderComponents;
         std::vector<CapsuleColliderComponent> mCapsuleColliderComponents;
         std::vector<MeshColliderComponent> mMeshColliderComponents;
+        std::vector<TrophyColliderComponent> mTrophyColliderComponents;
         std::vector<CameraComponent> mCameraComponents;
+        std::vector<AiComponent> mAiComponents;
 
         //Direct pointers to systems instead of having a std::list< of systems>
         //That way it is easier to controll the order of the systems running
@@ -72,6 +76,7 @@ class ECSManager
         PhysicsSystem* mPhysicsSystem{nullptr};
         CameraSystem* mCameraSystem{nullptr};
         Ballsystem* mBallsystem{nullptr};
+        AiSystem* mAiSystem{nullptr};
 
         //Other resources:
         Shader *mShaders[4]{nullptr};

@@ -11,6 +11,9 @@ Ballsystem::Ballsystem()
 {
     mInstance = this;
     mManager = ECSManager::getInstance();
+
+    thropyCounter = 4;
+
 }
 
 void Ballsystem::checkCollision()
@@ -87,7 +90,7 @@ void Ballsystem::checkCollision()
             if(j != -1)
             {
                 gsl::Vec3 triNormal = MeshBase::normalFromTriangle(j, terrain[k].triangles, vertices);
-                gsl::Vec3 triPosition = MeshBase::centerFromTriangle(j, terrain[k].triangles, vertices);
+                gsl::Vec3 triPosition = MeshBase::getTriangleCenter(j, terrain[k].triangles, vertices);
 
                 float planeDistance = (localPos - triPosition)*gsl::Vec3(0,1,0);
                 float distance = (localPos - triPosition)*triNormal;
@@ -124,6 +127,28 @@ void Ballsystem::checkCollision()
                 else
                     spheres[i].touching = false;
             }
+        }
+
+    //Ball/Trophy pickUp
+    std::vector<BoxColliderComponent>& b2 = mManager->mBoxColliderComponents;
+    for(size_t i = 0; i < spheres.size(); i++)
+        for(size_t k = 0; k < b2.size(); k++)
+        {
+            GLfloat distance = (spheres[i].getFirstTransformComponent()->mTransform.getPosition() - b2[k].getFirstTransformComponent()->mTransform.getPosition()).length();
+            if(distance < 5.f && b2[k].bSpline == true)
+            {
+                //Removes the entity from the bspline calculations, and sends it out of player vison (unable to destroy it)
+                b2[k].bSpline = false;
+                std::cout << "throphy " << k << " picked up" << std::endl;
+                b2[k].getFirstTransformComponent()->mTransform.setPosition(0, 2000, 0);
+
+                //Checks how many trophies is left and which one got picked up, and tells the player
+                thropyCounter--;
+                if(thropyCounter > 0)
+                    std::cout << "Only " << thropyCounter << " throphies left" << std::endl;
+                else
+                    std::cout << "You collected all the trophies!" << std::endl;
+            };
         }
 }
 

@@ -20,6 +20,7 @@
 #include "physicssystem.h"
 #include "camerasystem.h"
 #include "ballsystem.h"
+#include "aisystem.h"
 #include <cassert>
 
 
@@ -38,6 +39,7 @@ ECSManager::ECSManager(RenderWindow *renderWindow) : mRenderWindow{renderWindow}
     mCameraSystem = new CameraSystem(renderWindow);
     mMeshFactory = new MeshFactory;
     mBallsystem = new Ballsystem();
+    mAiSystem = new AiSystem();
 
     //Compile shaders:
     makeShaders();
@@ -96,6 +98,11 @@ void ECSManager::runCameraSystem()
 void ECSManager::runBallsystem()
 {
     mBallsystem->checkCollision();
+}
+
+void ECSManager::runAiSystem(GLfloat deltaTime)
+{
+    mAiSystem->patrol(deltaTime);
 }
 
 void ECSManager::runApplyPhysics(GLfloat deltaTime)

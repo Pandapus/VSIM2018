@@ -75,6 +75,21 @@ void RigidBodyComponent::SweepTestAll()
 
 }
 
+AiComponent* ComponentBase::getFirstAiComponent()
+{
+    ECSManager *manager = ECSManager::getInstance();
+
+    std::vector<AiComponent> &components = manager->mAiComponents;
+    size_t size = manager->mAiComponents.size();
+
+    for (size_t i = 0; i < size; i++)
+    {
+        if (components[i].ownerEntityID == ownerEntityID)
+            return &components[i];
+    }
+
+    return nullptr;
+}
 
 TransformComponent* ComponentBase::getFirstTransformComponent()
 {
@@ -292,6 +307,20 @@ MeshColliderComponent* ComponentBase::getFirstMeshColliderComponent()
         if (components[i].ownerEntityID == ownerEntityID)
             return &components[i];
     }
+
+    return nullptr;
+}
+
+TrophyColliderComponent* ComponentBase::getFirstTrophyColliderComponent()
+{
+    ECSManager *manager = ECSManager::getInstance();
+
+    std::vector<TrophyColliderComponent> &components = manager->mTrophyColliderComponents;
+    size_t size = manager->mMeshColliderComponents.size();
+
+    for(size_t i = 0; i < size; i++)
+        if (components[i].ownerEntityID == ownerEntityID)
+            return &components[i];
 
     return nullptr;
 }

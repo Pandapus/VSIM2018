@@ -15,6 +15,7 @@ public:
 
     void checkCollision();
     void applyPhysics(float deltaTime);
+    size_t thropyCounter;
 
 private:
     ECSManager* mManager{nullptr};

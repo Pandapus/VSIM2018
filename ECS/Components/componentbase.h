@@ -5,6 +5,7 @@
 #include "transform.h"
 #include "vec3.h"
 #include "quaternion.h"
+#include "bsplinecurve.h"
 
 class Material;
 class Vertex;
@@ -22,7 +23,9 @@ struct SphereColliderComponent;
 struct CyllinderColliderComponent;
 struct CapsuleColliderComponent;
 struct MeshColliderComponent;
+struct TrophyColliderComponent;
 struct CameraComponent;
+struct AiComponent;
 
 static GLuint ID{0};
 
@@ -40,7 +43,6 @@ struct plane
     gsl::Vec3 position;
     gsl::Vec3 normal;
 };
-
 
 struct Triangle
 {
@@ -87,9 +89,23 @@ struct ComponentBase
         CyllinderColliderComponent* getFirstCyllinderColliderComponent();
         CapsuleColliderComponent* getFirstCapsuleColliderComponent();
         MeshColliderComponent* getFirstMeshColliderComponent();
+        TrophyColliderComponent* getFirstTrophyColliderComponent();
         CameraComponent* getFirstCameraComponent();
+        AiComponent* getFirstAiComponent();
 };
 
+struct AiComponent : ComponentBase
+{
+    MeshBase *mData{nullptr};
+    float time{0.f};
+    float speed{0.1f};
+
+    BSplineCurve path;
+    bool direction = false;
+    gsl::Vec3 lastPosition;
+
+    int triangleLastFrame{0};
+};
 
 struct MeshComponent : ComponentBase
 {
@@ -208,6 +224,7 @@ struct BoxColliderComponent : ColliderComponent
 {
     plane f1, f2, f3, f4, f5, f6;
     gsl::Vec3 centerPosition;
+    bool bSpline;
 };
 
 
@@ -241,6 +258,12 @@ struct MeshColliderComponent : ColliderComponent
     size_t numTriangles;
 
     gsl::Mat4 modelMatrix;
+};
+
+struct TrophyColliderComponent : ColliderComponent
+{
+    GLfloat pickUpRadius;
+    gsl::Vec3 centerPosition;
 };
 
 struct CameraComponent : public ComponentBase

@@ -78,6 +78,41 @@ void CoreEngine::makeInitialEntities()
     mcc.numTriangles = mcc.mData->mNumberOfTriangles;
     mECSManager->mMeshColliderComponents.push_back(mcc);
 
+    //Creates 4 trophies for the assignment, uses boxCollierComponent for simplicity
+    temp = mECSManager->makeEntity("Trophy01", "cube", gsl::COLOR);
+    temp->getTransform().setPosition(25, 3, 90);
+    BoxColliderComponent trophy1;
+    trophy1.bSpline = true;
+    trophy1.ownerEntityID = temp->mEntityID;
+    mECSManager->mBoxColliderComponents.push_back(trophy1);
+
+    temp = mECSManager->makeEntity("Trophy02", "cube", gsl::COLOR);
+    temp->getTransform().setPosition(50, 3, 90);
+    BoxColliderComponent trophy2;
+    trophy2.bSpline = true;
+    trophy2.ownerEntityID = temp->mEntityID;
+    mECSManager->mBoxColliderComponents.push_back(trophy2);
+
+    temp = mECSManager->makeEntity("Trophy03", "cube", gsl::COLOR);
+    temp->getTransform().setPosition(50, 3, 65);
+    BoxColliderComponent trophy3;
+    trophy3.bSpline = true;
+    trophy3.ownerEntityID = temp->mEntityID;
+    mECSManager->mBoxColliderComponents.push_back(trophy3);
+
+    temp = mECSManager->makeEntity("Trophy04", "cube", gsl::COLOR);
+    temp->getTransform().setPosition(25, 3, 65);
+    BoxColliderComponent trophy4;
+    trophy4.bSpline = true;
+    trophy4.ownerEntityID = temp->mEntityID;
+    mECSManager->mBoxColliderComponents.push_back(trophy4);
+
+    //Create the ai and attach the AiComponent
+    temp = mECSManager->makeEntity("Ai", "cube", gsl::COLOR);
+    AiComponent ai;
+    ai.ownerEntityID = temp->mEntityID;
+    ai.mData = ai.getFirstMeshComponent()->mData;
+    mECSManager->mAiComponents.push_back(ai);
 }
 
 
@@ -101,6 +136,7 @@ void CoreEngine::timerEvent(QTimerEvent *)
     mECSManager->runPhysicsSystem(mDeltaTime);
     mECSManager->runBallsystem();
     mECSManager->runApplyPhysics(mDeltaTime);
+    mECSManager->runAiSystem(mDeltaTime);
     /*for (auto entity : mEntities)
     {
         InputComponent* tmp = entity->mInputComponent;

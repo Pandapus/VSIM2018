@@ -21,7 +21,8 @@ class MeshBase : protected QOpenGLFunctions_4_1_Core
         void makeBoundingBox();
         void averageNormals();
         static gsl::Vec3 normalFromTriangle(int triangleIndex, Triangle *triangles, Vertex *vertices);
-        static gsl::Vec3 centerFromTriangle(int triangleIndex, Triangle *triangles, Vertex *vertices);
+        static gsl::Vec3 getTriangleCenter(int triangleIndex, Triangle *triangles, Vertex *vertices);
+        int findTriangleIndexFromWorldPosition(int triangleIndex, Vec3 worldPos, Mat4& terrainMat, Triangle *triangles, Vertex *vertices);
         void printMeshData();
 
         Vertex* vertices() const;

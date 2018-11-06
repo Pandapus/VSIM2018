@@ -20,12 +20,14 @@ void CollisionSystem::checkCollisions()
     size_t numCyllinderColliderComponents = mManager->mCyllinderColliderComponents.size();
     size_t numCapsuleColliderComponents = mManager->mCapsuleColliderComponents.size();
     size_t numMeshColliderComponents = mManager->mMeshColliderComponents.size();
+    size_t numTrophyColliderComponents = mManager->mTrophyColliderComponents.size();
 
     std::vector<BoxColliderComponent>& mBoxColliderComponents = mManager->mBoxColliderComponents;
     std::vector<SphereColliderComponent>& mSphereColliderComponents = mManager->mSphereColliderComponents;
     std::vector<CyllinderColliderComponent>& mCyllinderColliderComponents = mManager->mCyllinderColliderComponents;
     std::vector<CapsuleColliderComponent>& mCapsuleColliderComponents = mManager->mCapsuleColliderComponents;
     std::vector<MeshColliderComponent>& mMeshColliderComponents = mManager->mMeshColliderComponents;
+    std::vector<TrophyColliderComponent>& mTrophyColliderComponents = mManager->mTrophyColliderComponents;
 
     size_t i, j;
     // BoxColliderComponents
@@ -232,7 +234,7 @@ int CollisionSystem::findTriangleIndexFromWorldPosition(gsl::Vec3 localPos, Vert
         v3_p3 = vertexData[t.k].get_xyz();
 
         normal = MeshBase::normalFromTriangle(i, triangleData, vertexData);
-        triangleCenter = MeshBase::centerFromTriangle(i, triangleData, vertexData);
+        triangleCenter = MeshBase::getTriangleCenter(i, triangleData, vertexData);
 
         p1 = gsl::Vec2(v3_p1.getX(), v3_p1.getZ());
         p2 = gsl::Vec2(v3_p2.getX(), v3_p2.getZ());
@@ -304,7 +306,7 @@ void CollisionSystem::checkSphereInsideMesh(SphereColliderComponent& s1, MeshCol
         // is on the other side of the plane
 
         gsl::Vec3 faceNormal = MeshBase::normalFromTriangle(index, m2.triangles, vertices);
-        gsl::Vec3 facePosition = MeshBase::centerFromTriangle(index, m2.triangles, vertices);
+        gsl::Vec3 facePosition = MeshBase::getTriangleCenter(index, m2.triangles, vertices);
 
         std::cout << "FaceNormal: {" << faceNormal << "} " << std::endl;
 

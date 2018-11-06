@@ -89,7 +89,9 @@ SOURCES += main.cpp \
     linedebug.cpp \
     directionallight.cpp \
     physicball.cpp \
-    ECS/Systems/ballsystem.cpp
+    ECS/Systems/ballsystem.cpp \
+    ECS/Systems/aisystem.cpp \
+    GSL/bsplinecurve.cpp
 
 HEADERS += \
     renderwindow.h \
@@ -146,7 +148,9 @@ HEADERS += \
     linedebug.h \
     directionallight.h \
     physicball.h \
-    ECS/Systems/ballsystem.h
+    ECS/Systems/ballsystem.h \
+    ECS/Systems/aisystem.h \
+    GSL/bsplinecurve.h
 
 FORMS += \
     mainwindow.ui

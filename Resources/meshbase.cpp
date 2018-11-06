@@ -272,7 +272,7 @@ gsl::Vec3 MeshBase::normalFromTriangle(int triangleIndex, Triangle* triangles, V
     return faceNormal;
 }
 
-gsl::Vec3 MeshBase::centerFromTriangle(int triangleIndex, Triangle *triangles, Vertex *vertices)
+gsl::Vec3 MeshBase::getTriangleCenter(int triangleIndex, Triangle *triangles, Vertex *vertices)
 {
     Triangle t = triangles[triangleIndex];
     gsl::Vec3 v1 = vertices[t.i].get_xyz();
@@ -280,6 +280,88 @@ gsl::Vec3 MeshBase::centerFromTriangle(int triangleIndex, Triangle *triangles, V
     gsl::Vec3 v3 = vertices[t.k].get_xyz();
 
     return gsl::Vec3((v1.x + v2.x + v3.x) / 3, (v1.y + v2.y + v3.y) / 3, (v1.z + v2.z + v3.z) / 3);
+}
+
+int MeshBase::findTriangleIndexFromWorldPosition(int triangleIndex, Vec3 worldPos, Mat4 &terrainMat, Triangle *triangles, Vertex *vertices)
+{
+    Vec3 localPos = (terrainMat * Vec4(worldPos, 1)).toVector3D();
+
+    gsl::Vec2 p1, p2, p3, currentPoint;
+    gsl::Vec3 v3_p1, v3_p2, v3_p3, area;
+
+    int i = triangleIndex;
+
+    Triangle t;
+
+    gsl::Vec3 normal, triangleCenter;
+
+    // Find out which triangle the position is
+    for(; i != -1;)
+    {
+        t = mTriangles[i];
+        v3_p1 = mVertices[t.i].get_xyz();
+        v3_p2 = mVertices[t.j].get_xyz();
+        v3_p3 = mVertices[t.k].get_xyz();
+
+        normal = MeshBase::normalFromTriangle(i, triangles, vertices);
+        triangleCenter = getTriangleCenter(i, triangles, vertices);
+
+        float dist = Vec3::dot((localPos - triangleCenter), normal);
+
+        p1 = gsl::Vec2(v3_p1.getX(), v3_p1.getZ());
+        p2 = gsl::Vec2(v3_p2.getX(), v3_p2.getZ());
+        p3 = gsl::Vec2(v3_p3.getX(), v3_p3.getZ());
+
+        currentPoint = gsl::Vec2(localPos.getX(), localPos.getZ());
+        area = currentPoint.barycentricCoordinates(p1, p2, p3);
+
+        if(area.getX() >= 0 && area.getY() >= 0 && area.getZ() >= 0)
+        {
+            // The point is inside a triangle...
+            // We should check the distance to the triangle from the center
+            return i;
+        }
+
+        // We are in the first triangle of the quad
+        if(i % 2 == 0)
+        {
+            if(area.getX() < 0 && area.getY() >= 0 && area.getZ() >= 0)
+                i = t.e3; // go right / up
+            else if(area.getY() < 0 && area.getX() >= 0 && area.getZ() >= 0)
+                i = t.e1; // go left
+            else if(area.getZ() < 0 && area.getX() >= 0 && area.getY() >= 0)
+                i = t.e2; // go down
+            else
+            {
+                if( area.getZ() < area.getY())
+                    i = t.e2; // go down
+                else
+                    i = t.e1; // go left
+            }
+        }
+        else
+        {
+            if(area.getY() < 0 && area.getZ() >= 0 && area.getX() >= 0)
+                i = t.e3; // Go left / down
+            else if(area.getX() < 0 && area.getY() >= 0  && area.getZ() >= 0)
+                i = t.e1; // Go up
+            else if(area.getZ() < 0 && area.getX() >= 0 && area.getY() >= 0)
+                i = t.e2; // Go right
+            else if(area.getX() < 0 && area.getY() < 0 && area.getZ() >= 0)
+                i = t.e3; // Go left / down
+            else if(area.getX() < 0 && area.getZ() < 0 && area.getY() >= 0)
+                i = t.e2; // Go right
+            else
+            {
+                if(area.getY() < area.getZ())
+                    i = t.e1; // Go up
+                else
+                    i = t.e3; // Go left / down
+            }
+        }
+    }
+
+return -1;
 }
 
 
